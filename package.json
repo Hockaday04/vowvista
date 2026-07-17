@@ -28,7 +28,7 @@
     "react-map-gl": "^7.1.7",
     "stripe": "^17.2.0",
     "algoliasearch": "^5.14.2",
-    "react-instant-search": "^7.12.2",
+    "react-instantsearch": "^7.12.2",
     "cloudinary": "^2.5.1",
     "@sendgrid/mail": "^8.1.4",
     "bcrypt": "^5.1.1",
