@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  password       String?
+  name           String
+  role           Role      @default(COUPLE)
+  avatar         String?
+  weddingDate    DateTime?
+  weddingBudget  Decimal?
+  location       String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  supplier       Supplier?
+  reviews        Review[]
+  favourites     Favourite[]
+  sessions       Session[]
+}
+
+enum Role {
+  COUPLE
+  SUPPLIER
+  ADMIN
+}
+
+model Supplier {
+  id                 String           @id @default(cuid())
+  userId             String           @unique
+  user               User             @relation(fields: [userId], references: ["id"])
+  businessName       String
+  category           SupplierCategory
+  description        String           @db.Text
+  location           String
+  latitude           Float
+  longitude          Float
+  coverage           String[]
+  website            String?
+  phone              String?
+  email              String
+  pricing            PriceRange
+  subscriptionTier   SubscriptionTier @default(FREE)
+  verified           Boolean          @default(false)
+  stripeAccountId    String?
+  images             Image[]
+  reviews            Review[]
+  favourites         Favourite[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+}
+
+enum SupplierCategory {
+  VENUE
+  PHOTOGRAPHER
+  VIDEOGRAPHER
+  CATERER
+  FLORIST
+  BAND
+  DJ
+  MAKEUP_ARTIST
+  HAIR_STYLIST
+  WEDDING_PLANNER
+  STATIONERY
+  TRANSPORT
+  CAKE_DESIGNER
+  OFFICIANT
+  ENTERTAINMENT
+  OTHER
+}
+
+enum PriceRange {
+  BUDGET
+  MID_RANGE
+  PREMIUM
+  LUXURY
+}
+
+enum SubscriptionTier {
+  FREE
+  BASIC
+  PREMIUM
+  FEATURED
+}
+
+model Image {
+  id          String   @id @default(cuid())
+  url         String
+  publicId    String
+  caption     String?
+  isPrimary   Boolean  @default(false)
+  supplierId  String
+  supplier    Supplier @relation(fields: ["supplierId"], references: ["id"], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int
+  comment     String   @db.Text
+  userId      String
+  user        User     @relation(fields: ["userId"], references: ["id"])
+  supplierId  String
+  supplier    Supplier @relation(fields: ["supplierId"], references: ["id"], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Favourite {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: ["userId"], references: ["id"], onDelete: Cascade)
+  supplierId  String
+  supplier    Supplier @relation(fields: ["supplierId"], references: ["id"], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: ["userId"], references: ["id"], onDelete: Cascade)
+  handle    String   @unique
+  expiresAt DateTime
+  data      String
+}
+
+model WeddingChecklist {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  completed   Boolean  @default(false)
+  dueDate     DateTime?
+  userId      String
+  category    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Budget {
+  id         String   @id @default(cuid())
+  userId     String
+  category   String
+  allocated  Decimal
+  spent      Decimal  @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model CookieConsent {
+  id        String   @id @default(cuid())
+  userId    String?
+  ipAddress String
+  consented Boolean
+  createdAt DateTime @default(now())
+}
